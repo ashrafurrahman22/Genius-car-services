@@ -1,8 +1,12 @@
+import { async } from '@firebase/util';
 import React, { useRef } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useSendPasswordResetEmail, useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../firebase.init';
+import SocialLogin from './SocialLogin/SocialLogin';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
 
@@ -19,7 +23,7 @@ const Login = () => {
       error,
     ] = useSignInWithEmailAndPassword(auth);
 
-
+    const [sendPasswordResetEmail] = useSendPasswordResetEmail(auth);
     
     const navigateRegister = event => {
       navigate('/register')
@@ -35,10 +39,23 @@ const Login = () => {
         console.log(email, password)
     }
 
+
     if(user){
       navigate(from, { replace: true });
     }
-    
+
+    const resetPassword = async() => {
+      const email = emailRef.current.value;
+     if(email){
+      await sendPasswordResetEmail(email);
+      toast('Sent email');
+     }
+     else{
+       toast('Enter your email')
+     }
+    }
+
+
     return (
         <div className='mx-auto w-50 my-3 py-3'>
             <h2>Please Log in</h2>
@@ -55,14 +72,14 @@ const Login = () => {
     <Form.Label>Password</Form.Label>
     <Form.Control ref={passwordRef} type="password" placeholder="Password" required />
   </Form.Group>
-  <Form.Group className="mb-3" controlId="formBasicCheckbox">
-    <Form.Check type="checkbox" label="Check me out" />
-  </Form.Group>
-  <Button variant="primary" type="submit">
+  <Button variant="primary w-50 mx-auto d-block" type="submit">
     Login
   </Button>
 </Form>
         <p className='text-center py-3 my-3'>New to Genius-Car?  <button onClick={navigateRegister} className='text-white px-2 py-1 rounded-3 ms-2 bg-primary'>Sign up</button> </p>
+        <p className='text-center py-3 my-3'>Forget Password?  <button onClick={resetPassword} className='text-white px-2 py-1 rounded-3 ms-2 bg-primary'>Reset Password</button> </p>
+        <SocialLogin></SocialLogin>
+        <ToastContainer />
         </div>
     );
 };
