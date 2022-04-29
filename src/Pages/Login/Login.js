@@ -8,6 +8,7 @@ import SocialLogin from './SocialLogin/SocialLogin';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PageTitle from '../Shared/PageTitle/PageTitle';
+import axios from 'axios';
 
 const Login = () => {
 
@@ -31,13 +32,15 @@ const Login = () => {
   }
 
 
-    const handleSubmit = event => {
+    const handleSubmit = async event => {
         event.preventDefault();
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
-        signInWithEmailAndPassword(email, password)
-
-        console.log(email, password)
+        await signInWithEmailAndPassword(email, password)
+        const {data} = await axios.post('https://glacial-forest-54030.herokuapp.com/login', {email})
+        localStorage.setItem('accessToken', data.accessToken)
+        navigate(from, { replace: true });
+        console.log(data)
     }
 
 
